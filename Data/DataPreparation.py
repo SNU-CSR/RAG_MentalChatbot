@@ -37,9 +37,13 @@ sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
 sentiment_df['statement'] = sentiment_df['statement'].str.lower()
 sentiment_df['status'] = sentiment_df['status'].str.lower()
 
+def get_sentiment_df():
+    return sentiment_df
+
 print(sentiment_df.head())
 
 # 우울증 감지 데이터 로드
 depression_df = pd.read_csv('Depression_Detection.csv')
 
 print(depression_df.head())
+
