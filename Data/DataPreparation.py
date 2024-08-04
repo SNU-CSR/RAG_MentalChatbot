@@ -30,12 +30,12 @@ conversation_df['response'] = conversation_df['response'].str.lower()
 
 print(conversation_df.head())
 
-
 # 감정분석 데이터 로드
 sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
 
-sentiment_df['statement'] = sentiment_df['statement'].str.lower()
-sentiment_df['status'] = sentiment_df['status'].str.lower()
+# 결측값을 빈 문자열로 대체
+sentiment_df['statement'].fillna('', inplace=True)
+sentiment_df['status'].fillna('', inplace=True)
 
 def get_sentiment_df():
     return sentiment_df
@@ -49,4 +49,3 @@ def get_depression_df():
     return depression_df
 
 print(depression_df.head())
-
