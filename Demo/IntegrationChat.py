@@ -22,6 +22,7 @@ from Model.DepressionSearch import retrieve_depression_info  # 우울증 정보 
 # OpenAI API 키 설정
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+
 llm = OpenAI(temperature=0.7)
 
 # 기본적인 프롬프트 템플릿 설정
