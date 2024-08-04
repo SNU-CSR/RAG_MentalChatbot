@@ -2,3 +2,5 @@
 *.csv
 *.json
 .env
+__pycache__/
+chromadb_data
