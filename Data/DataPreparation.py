@@ -10,7 +10,6 @@ print(faq_df.head())
 with open('Mental_Health_Conversations.json', 'r', encoding='utf-8') as file:
     conversation_data = json.load(file)
 
-# patterns와 responses를 추출하여 데이터프레임으로 변환
 data = []
 
 for intent in conversation_data['intents']:
@@ -33,7 +32,6 @@ print(conversation_df.head())
 # 감정분석 데이터 로드
 sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
 
-# 결측값을 빈 문자열로 대체
 sentiment_df['statement'].fillna('', inplace=True)
 sentiment_df['status'].fillna('', inplace=True)
 
