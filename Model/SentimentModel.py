@@ -1,12 +1,22 @@
-from Data.DataPreparation import get_sentiment_df
+#SentimentModel.py
+
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 # 데이터 준비
-sentiment_df = get_sentiment_df()
+sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
+
+sentiment_df['statement'].fillna('', inplace=True)
+sentiment_df['status'].fillna('', inplace=True)
+
+def get_sentiment_df():
+    return sentiment_df
+
 
 # 결측값을 빈 문자열로 대체
 sentiment_df = sentiment_df.copy()
