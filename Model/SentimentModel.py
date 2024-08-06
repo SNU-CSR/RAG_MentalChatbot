@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from Data.DataPreparation import get_sentiment_df
 
 from sklearn.model_selection import train_test_split
