@@ -1,54 +1,121 @@
-<<<<<<< HEAD
-import streamlit as st
-import google.generativeai as genai
-
-st.title("Mental chat bot")
-
-@st.cache_resource
-def load_model():
-    model = genai.GenerativeModel('gemini-pro')
-    print("model loaded...")
-    return model
-
-model = load_model()
-
-# session_state : 객체 활용해 대화 이력을 세션으로 관리
-# 사용자와 ai의 메시지 생성될 때마다 대화 이력에 메시지 정보 추가
-if "chat_session" not in st.session_state:
-    st.session_state["chat_session"] = model.start_chat(history=[])
-    
-# 대화 이력에 추가된 메시지는 사용자 인터랙션 있을때마다
-# for loop으로 메시지 전체가 화면으로 출력되도록 함 
-for content in st.session_state.chat_session.history:
-    with st.chat_message("ai" if content.role == "model" else "user"):
-        st.markdown(content.parts[0].text)
-    
-if prompt := st.chat_input("메시지를 입력하세요. "):
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("ai"):
-        response = st.session_state.chat_session.send_message(prompt)
-        st.markdown(response.text)       
-=======
 import sys
 import os
 
-# 현재 파일의 디렉토리 경로를 얻고 부모 디렉토리를 추가
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 sys.path.append(parent_dir)
 
 import streamlit as st
-from IntegrationChat import chatbot_response
+from IntegrationChat import chatbot_response, questions, retrieve_depression_state
 
-# Streamlit 설정
-st.header("🤖 Mental Health Chatbot")
+st.set_page_config(layout="wide")
+st.title("Mental Health")
 
-user_input = st.text_input("당신의 질문을 입력하세요:")
+chatbot_col, spacer, survey_col = st.columns([1, 0.1, 1])
 
-if st.button("전송"):
-    response = chatbot_response(user_input)
-    st.write("챗봇의 응답:")
-    st.write(response)
->>>>>>> origin/develop
+with chatbot_col:
+    st.header("🤖 Mental Health Chatbot")
+    
+    st.markdown("""
+        <style>
+        .chatbox {
+            background-color: #e6f7ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            background-color: #F1F8E8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .bot-message {
+            background-color: #fff1e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+    
+    # 대화 이력을 저장할 리스트
+    if 'conversation_history' not in st.session_state:
+        st.session_state.conversation_history = []
+
+    user_input = st.text_input("How are you feeling today?:")
+
+    if st.button("Send"):
+        if user_input:
+            st.session_state.conversation_history.append({"user": user_input})
+            response = chatbot_response(user_input)
+            st.session_state.conversation_history.append({"bot": response})
+
+            # 감정 분석이 "negative"이면 우울증 질문 시작
+            if response.startswith("Check about depression rate."):
+                st.session_state.depression_responses = []
+                st.session_state.current_question_index = 0
+
+    for chat in st.session_state.conversation_history:
+        if "user" in chat:
+            st.markdown(f"""
+                <div class="user-message">
+                    You: {chat['user']}
+                </div>
+                """, unsafe_allow_html=True)
+        if "bot" in chat:
+            st.markdown(f"""
+                <div class="bot-message">
+                    Chatbot: {chat['bot']}
+                </div>
+                """, unsafe_allow_html=True)
+
+
+with survey_col:
+    st.header("✏️ Check Your Depression Degree!")
+
+    st.markdown("""
+        <style>
+        .question-box {
+            background-color: #FEFAE0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    # 우울증 관련 질문 상태를 저장할 리스트
+    if 'depression_responses' not in st.session_state:
+        st.session_state.depression_responses = []
+
+    # 현재 질문 인덱스를 저장할 상태
+    if 'current_question_index' not in st.session_state:
+        st.session_state.current_question_index = 0
+
+    # 우울증 관련 질문 단계별 진행
+    total_questions = len(questions)
+    if st.session_state.current_question_index < total_questions:
+        current_question_num = st.session_state.current_question_index + 1
+        question = questions[st.session_state.current_question_index]
+        st.markdown(f"""
+            <div class="question-box">
+                <strong>Question {current_question_num}/{total_questions}:</strong><br>{question}
+            </div>
+            """, unsafe_allow_html=True)
+        answer = st.selectbox(
+            "Select your answer (1-5):",
+            ["1: Not at all", "2: A little bit", "3: Moderately", "4: Quite a bit", "5: Very much"],
+            key=f"answer_{st.session_state.current_question_index}"
+        )
+
+        if st.button("Next Question", key="next_question_button"):
+            st.session_state.depression_responses.append(int(answer[0]))  
+            st.session_state.current_question_index += 1
+
+            # 모든 질문이 완료되면 결과를 계산
+            if st.session_state.current_question_index >= len(questions):
+                depression_state = retrieve_depression_state(st.session_state.depression_responses)
+                st.markdown(f"**Depression Rate:** {depression_state}")
+    else:
+        st.markdown("Complete Self-check. Keep talking with chatBot!")
