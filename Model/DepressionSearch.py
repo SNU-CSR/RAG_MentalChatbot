@@ -1,5 +1,3 @@
-# DepressionSearch.py
-
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -14,8 +12,6 @@ def retrieve_faq_info(query, similarity_threshold=0.7):
         n_results=1
     )
 
-    # 쿼리 결과 디버깅 출력
-    print("Query Results:", results)
 
     if results['ids'] and results['embeddings']:
         first_metadata = results['metadatas'][0]
@@ -31,7 +27,7 @@ def retrieve_faq_info(query, similarity_threshold=0.7):
     else:
         return "질문에 대한 답변을 찾을 수 없습니다."
 
-# 테스트
+# test
 if __name__ == "__main__":
     query = "Hi!"
     print(retrieve_faq_info(query))

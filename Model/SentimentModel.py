@@ -1,5 +1,3 @@
-#SentimentModel.py
-
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -35,10 +33,8 @@ pipeline = Pipeline([
 # 모델 학습
 pipeline.fit(X_train, y_train)
 
-# 모델 평가
 accuracy = pipeline.score(X_test, y_test)
 print("감정 분석 모델 정확도:", accuracy)
 
-# 감정 예측 함수
 def predict_sentiment(text):
     return pipeline.predict([text])[0]

@@ -19,13 +19,10 @@ from langchain.prompts import PromptTemplate
 from Model.SentimentModel import predict_sentiment  
 from Model.DepressionSearch import retrieve_faq_info
 
-# OpenAI API 키 설정
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-# OpenAI 클래스에 API 키를 직접 전달
 llm = OpenAI(openai_api_key=openai.api_key, temperature=0.7)
 
-# 프롬프트 템플릿 설정
 prompt = PromptTemplate(
     input_variables=["user_input"],
     template="You are a helpful assistant. Respond to the following: {user_input}"
@@ -78,12 +75,9 @@ def chatbot_response(user_input):
     # FAQ 관련 질문 처리
     faq_answer = retrieve_faq_info(user_input)
     if faq_answer != "질문에 대한 답변을 찾을 수 없습니다.":
-        # FAQ 응답이 있는 경우 FAQ 응답만 반환
         return faq_answer
     else:
-        # FAQ 응답이 없는 경우 일반 대화 응답 생성
         response = llm_chain.run({"user_input": user_input})
         return response
     
-# __all__을 사용하여 모듈의 공개 인터페이스 정의
 __all__ = ['chatbot_response']
