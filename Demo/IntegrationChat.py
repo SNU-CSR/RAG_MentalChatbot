@@ -25,7 +25,9 @@ llm = OpenAI(openai_api_key=openai.api_key, temperature=0.7)
 
 prompt = PromptTemplate(
     input_variables=["user_input"],
-    template="You are a helpful assistant. Respond to the following: {user_input}"
+    template="You are a helpful assistant specializing in depression prevention."
+        "Respond to the following query to help support mental health and "
+        "provide useful information: {user_input}"
 )
 
 # LLMChain 설정
