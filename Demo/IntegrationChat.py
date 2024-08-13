@@ -1,7 +1,6 @@
-# IntegrationChat.py
-
 import sys
 import os
+import json
 from dotenv import load_dotenv
 
 # .env 파일 로드
@@ -32,6 +31,9 @@ prompt = PromptTemplate(
 
 # LLMChain 설정
 llm_chain = LLMChain(llm=llm, prompt=prompt)
+
+with open(os.path.join(parent_dir, 'Data', 'Mental_Health_Conversations.json'), 'r', encoding='utf-8') as file:
+    conversation_data = json.load(file)
 
 questions = [
     "1. 최근에 잠을 자지 못하거나 너무 많이 잔 적이 있나요?",
@@ -68,7 +70,19 @@ def retrieve_depression_state(user_responses):
     else:
         return "Severe"
 
+def find_response(user_input):
+    user_input = user_input.lower()
+    for intent in conversation_data['intents']:
+        for pattern in intent['patterns']:
+            if pattern.lower() in user_input:
+                return intent['responses'][0]  
+    return None
+
 def chatbot_response(user_input):
+    conversation_response = find_response(user_input)
+    if conversation_response:
+        return conversation_response
+
     # 감정 분석 수행
     sentiment = predict_sentiment(user_input)
     if sentiment == 'negative':
