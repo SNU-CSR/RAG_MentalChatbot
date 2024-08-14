@@ -85,3 +85,4 @@ for start_idx in range(0, len(faq_vectors), chunk_size):
     print(f"고우울증 데이터 {start_idx}에서 {end_idx}까지 처리 완료")
 
 print("우울증 정도에 따른 데이터가 Chroma DB에 저장되었습니다.")
+

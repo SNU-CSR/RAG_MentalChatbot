@@ -4,8 +4,10 @@ from dotenv import load_dotenv
 from Model.SentimentModel import predict_sentiment
 from Model.DepressionSearch import retrieve_info
 
+# .env 파일 로드
 load_dotenv()
 
+# 현재 파일의 디렉토리 경로를 얻고 부모 디렉토리를 추가
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 sys.path.append(parent_dir)
@@ -19,6 +21,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 llm = OpenAI(openai_api_key=openai.api_key, temperature=0.7)
 
+# 대화 내역을 저장할 리스트
 conversation_history = []
 
 prompt = PromptTemplate(
@@ -34,6 +37,7 @@ prompt = PromptTemplate(
     )
 )
 
+# LLMChain 설정
 llm_chain = LLMChain(llm=llm, prompt=prompt)
 
 questions = [

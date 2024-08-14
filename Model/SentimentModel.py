@@ -36,3 +36,4 @@ print("감정 분석 모델 정확도:", accuracy)
 
 def predict_sentiment(text):
     return pipeline.predict([text])[0]
+

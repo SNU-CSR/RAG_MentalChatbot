@@ -59,3 +59,4 @@ if __name__ == "__main__":
     query = "Hi!"
     depression_level = "Mild"  
     print(retrieve_info(query, depression_level))
+    
