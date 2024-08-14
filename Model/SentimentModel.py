@@ -5,8 +5,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-
-# 데이터 준비
 sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
 
 sentiment_df['statement'].fillna('', inplace=True)

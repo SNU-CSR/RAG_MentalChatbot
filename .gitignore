@@ -2,5 +2,6 @@
 *.csv
 *.json
 .env
+.pkl
 __pycache__/
 chromadb_data
