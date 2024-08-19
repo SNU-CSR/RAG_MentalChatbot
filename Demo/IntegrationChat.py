@@ -1,5 +1,3 @@
-# IntegrationChat.py
-
 import sys
 import os
 from dotenv import load_dotenv
@@ -23,11 +21,21 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 llm = OpenAI(openai_api_key=openai.api_key, temperature=0.7)
 
+# 대화 내역을 저장할 리스트
+conversation_history = []
+
+# 프롬프트 템플릿 설정
 prompt = PromptTemplate(
-    input_variables=["user_input"],
-    template="You are a helpful assistant specializing in depression prevention."
-        "Respond to the following query to help support mental health and "
-        "provide useful information: {user_input}"
+    input_variables=["conversation_history", "user_input"],
+    template=(
+        "You are a helpful assistant specializing in depression prevention."
+        " Below is the conversation history with the user. Based on this history, "
+        "respond to the following query to help support mental health and "
+        "provide useful information.\n\n"
+        "Conversation history:\n{conversation_history}\n\n"
+        "User's current query: {user_input}\n\n"
+        "Your response:"
+    )
 )
 
 # LLMChain 설정
@@ -74,12 +82,20 @@ def chatbot_response(user_input):
     if sentiment == 'negative':
         return "Check about depression rate."
 
+    # 대화 내역에 사용자 입력 추가
+    conversation_history.append(f"User: {user_input}")
+
     # FAQ 관련 질문 처리
     faq_answer = retrieve_faq_info(user_input)
     if faq_answer != "질문에 대한 답변을 찾을 수 없습니다.":
+        # FAQ에서 답변을 찾은 경우, 해당 답변을 대화 내역에 추가
+        conversation_history.append(f"Assistant: {faq_answer}")
         return faq_answer
     else:
-        response = llm_chain.run({"user_input": user_input})
+        # 누적된 대화 내역을 사용하여 프롬프트 생성
+        history_text = "\n".join(conversation_history)
+        response = llm_chain.run({"conversation_history": history_text, "user_input": user_input})
+        conversation_history.append(f"Assistant: {response}")
         return response
     
 __all__ = ['chatbot_response']
