@@ -5,6 +5,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
+# 데이터 준비
 sentiment_df = pd.read_csv('sentiment_analysis_data.csv')
 
 sentiment_df['statement'].fillna('', inplace=True)
@@ -36,4 +38,3 @@ print("감정 분석 모델 정확도:", accuracy)
 
 def predict_sentiment(text):
     return pipeline.predict([text])[0]
-

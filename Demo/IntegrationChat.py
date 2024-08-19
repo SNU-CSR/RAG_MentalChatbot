@@ -1,8 +1,6 @@
 import sys
 import os
 from dotenv import load_dotenv
-from Model.SentimentModel import predict_sentiment
-from Model.DepressionSearch import retrieve_info
 
 # .env 파일 로드
 load_dotenv()
@@ -16,6 +14,8 @@ import openai
 from langchain_openai import OpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
+from Model.SentimentModel import predict_sentiment  
+from Model.DepressionSearch import retrieve_faq_info
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -24,6 +24,7 @@ llm = OpenAI(openai_api_key=openai.api_key, temperature=0.7)
 # 대화 내역을 저장할 리스트
 conversation_history = []
 
+# 프롬프트 템플릿 설정
 prompt = PromptTemplate(
     input_variables=["conversation_history", "user_input"],
     template=(
@@ -57,6 +58,14 @@ questions = [
     "14. 최근에 에너지가 부족하다고 느낀 적이 있나요?"
 ]
 
+def generate_response_gpt3(user_input):
+    response = openai.Completion.create(
+        engine="davinci",
+        prompt=user_input,
+        max_tokens=50
+    )
+    return response.choices[0].text.strip()
+
 def retrieve_depression_state(user_responses):
     if all(response <= 2 for response in user_responses):
         return "No depression"
@@ -68,20 +77,25 @@ def retrieve_depression_state(user_responses):
         return "Severe"
 
 def chatbot_response(user_input):
-    global conversation_history
-
     # 감정 분석 수행
     sentiment = predict_sentiment(user_input)
     if sentiment == 'negative':
-        user_responses = [int(input(q)) for q in questions]
-        depression_level = retrieve_depression_state(user_responses)
-        response = retrieve_info(user_input, depression_level)
-    else:
-        # 대화 내역을 업데이트하고 LLM에 전달
-        conversation_history.append(f"User: {user_input}")
-        response = llm_chain.run({"conversation_history": "\n".join(conversation_history), "user_input": user_input})
-        conversation_history.append(f"Assistant: {response}")
-    
-    return response
+        return "Check about depression rate."
 
+    # 대화 내역에 사용자 입력 추가
+    conversation_history.append(f"User: {user_input}")
+
+    # FAQ 관련 질문 처리
+    faq_answer = retrieve_faq_info(user_input)
+    if faq_answer != "질문에 대한 답변을 찾을 수 없습니다.":
+        # FAQ에서 답변을 찾은 경우, 해당 답변을 대화 내역에 추가
+        conversation_history.append(f"Assistant: {faq_answer}")
+        return faq_answer
+    else:
+        # 누적된 대화 내역을 사용하여 프롬프트 생성
+        history_text = "\n".join(conversation_history)
+        response = llm_chain.run({"conversation_history": history_text, "user_input": user_input})
+        conversation_history.append(f"Assistant: {response}")
+        return response
+    
 __all__ = ['chatbot_response']
