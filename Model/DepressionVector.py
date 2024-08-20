@@ -25,8 +25,14 @@ for idx, row in mental_health_faq_df.iterrows():
     metadatas.append(row.to_dict())
     embeddings.append(faq_vectors[idx])
 
-# 데이터를 저장할 컬렉션 생성
-faq_collection = client.create_collection(name="mental_health_faq")
+# 컬렉션이 존재하는지 확인
+try:
+    faq_collection = client.get_collection(name="mental_health_faq")
+    print("기존 컬렉션을 불러왔습니다. ")
+except chromadb.errors.CollectionNotFoundError:
+    # 컬렉션이 없을 경우 새로 생성
+    faq_collection = client.create_collection(name="mental_health_faq")
+    print("새 컬렉션을 생성했습니다. ")
 
 chunk_size = 70
 
